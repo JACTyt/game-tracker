@@ -3,13 +3,15 @@ import { CommonModule } from '@angular/common';
 import { SearchBarComponent, SearchMode } from './components/search-bar/search-bar.component';
 import { FilterPanelComponent } from './components/filter-panel/filter-panel.component';
 import { ResultsListComponent } from './components/results-list/results-list.component';
+import { SettingsPanelComponent } from './components/settings-panel/settings-panel.component';
 import { SearchService } from './services/search.service';
+import { CredentialsService } from './services/credentials.service';
 import { FiltersResponse, GameResult, ExtractedFilters, UserFilters } from './models/search.model';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, SearchBarComponent, FilterPanelComponent, ResultsListComponent],
+  imports: [CommonModule, SearchBarComponent, FilterPanelComponent, ResultsListComponent, SettingsPanelComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
@@ -22,10 +24,15 @@ export class AppComponent implements OnInit {
   filterOptions = signal<FiltersResponse | null>(null);
   activeFilters: UserFilters = {};
 
-  constructor(private searchService: SearchService) {}
+  constructor(
+    private searchService: SearchService,
+    readonly credentials: CredentialsService,
+  ) {}
 
   ngOnInit() {
-    this.searchService.getFilters().subscribe(opts => this.filterOptions.set(opts));
+    if (this.credentials.igdbConfigured()) {
+      this.searchService.getFilters().subscribe(opts => this.filterOptions.set(opts));
+    }
   }
 
   onModeChanged(mode: SearchMode) {

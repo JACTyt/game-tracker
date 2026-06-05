@@ -1,0 +1,51 @@
+<div class="settings-panel">
+  <button class="settings-toggle" (click)="toggle()" type="button">
+    <span class="gear">&#9881;</span>
+    API Credentials
+    @if (!credentials.igdbConfigured()) {
+      <span class="badge-warn">not configured</span>
+    } @else if (credentials.aiEnabled()) {
+      <span class="badge-ok">AI enabled</span>
+    } @else {
+      <span class="badge-partial">AI disabled</span>
+    }
+    <span class="chevron" [class.open]="open()">&#9660;</span>
+  </button>
+
+  @if (open()) {
+    <div class="settings-body">
+      <p class="settings-hint">
+        Credentials are stored only in your browser (localStorage) and sent directly to the API.
+      </p>
+
+      <label>
+        Twitch Client ID <span class="req">*</span>
+        <input [(ngModel)]="igdbClientId" type="text" autocomplete="off" placeholder="Required for all searches" />
+      </label>
+
+      <label>
+        Twitch Client Secret <span class="req">*</span>
+        <input [(ngModel)]="igdbClientSecret" type="password" autocomplete="off" placeholder="Required for all searches" />
+      </label>
+
+      <label>
+        OpenAI API Key
+        <input [(ngModel)]="openaiKey" type="password" autocomplete="off" placeholder="Optional — enables AI semantic search" />
+      </label>
+
+      <div class="settings-footer">
+        <button (click)="onSave()" type="button" [disabled]="!igdbClientId || !igdbClientSecret">
+          {{ saved() ? 'Saved!' : 'Save' }}
+        </button>
+        <div class="status-row">
+          <span [class.ok]="credentials.igdbConfigured()" [class.warn]="!credentials.igdbConfigured()">
+            IGDB {{ credentials.igdbConfigured() ? '✓' : '✗' }}
+          </span>
+          <span [class.ok]="credentials.aiEnabled()" [class.muted]="!credentials.aiEnabled()">
+            OpenAI {{ credentials.aiEnabled() ? '✓' : '—' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  }
+</div>

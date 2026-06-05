@@ -64,7 +64,14 @@ class SearchService:
         results = [_igdb_game_to_result(g) for g in games]
         return SearchResponse(results=results, mode="filter")
 
+    def _text_search(self, request: SearchRequest) -> SearchResponse:
+        games = self._igdb.text_search(request.query, limit=request.limit)
+        results = [_igdb_game_to_result(g) for g in games]
+        return SearchResponse(results=results, mode="text_search")
+
     def _semantic_search(self, request: SearchRequest) -> SearchResponse:
+        if self._openai is None:
+            return self._text_search(request)
         extracted = self._openai.extract_filters(request.query)
 
         # User-applied filters take precedence; GPT-4o fills unset fields

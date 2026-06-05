@@ -5,25 +5,34 @@
   </header>
 
   <main>
-    <app-search-bar
-      [mode]="mode()"
-      [loading]="loading()"
-      (searched)="onSearch($event)"
-      (modeChanged)="onModeChanged($event)"
-    />
+    <app-settings-panel />
 
-    @if (mode() === 'filter') {
-      <app-filter-panel
-        [options]="filterOptions()"
-        (filtersChanged)="onFiltersChanged($event)"
+    @if (credentials.igdbConfigured()) {
+      <app-search-bar
+        [mode]="mode()"
+        [loading]="loading()"
+        [aiEnabled]="credentials.aiEnabled()"
+        (searched)="onSearch($event)"
+        (modeChanged)="onModeChanged($event)"
       />
-    }
 
-    <app-results-list
-      [results]="results()"
-      [extractedFilters]="extractedFilters()"
-      [loading]="loading()"
-      [hasSearched]="hasSearched()"
-    />
+      @if (mode() === 'filter') {
+        <app-filter-panel
+          [options]="filterOptions()"
+          (filtersChanged)="onFiltersChanged($event)"
+        />
+      }
+
+      <app-results-list
+        [results]="results()"
+        [extractedFilters]="extractedFilters()"
+        [loading]="loading()"
+        [hasSearched]="hasSearched()"
+      />
+    } @else {
+      <div class="no-credentials">
+        Configure your API credentials above to start searching.
+      </div>
+    }
   </main>
 </div>

@@ -9,6 +9,8 @@
     <button
       [class.active]="mode() === 'semantic'"
       (click)="setMode('semantic')"
+      [disabled]="!aiEnabled()"
+      [title]="aiEnabled() ? '' : 'Add your OpenAI API key in settings to enable AI search'"
       type="button">
       Describe it
     </button>

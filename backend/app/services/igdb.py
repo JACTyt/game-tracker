@@ -17,7 +17,8 @@ class IGDBClient:
         self._client_secret = client_secret
 
     def _get_token(self) -> str:
-        cached = _token_cache.get("token")
+        cache_key = f"token:{self._client_id}"
+        cached = _token_cache.get(cache_key)
         if cached:
             return cached
         resp = httpx.post(
@@ -30,7 +31,7 @@ class IGDBClient:
         )
         resp.raise_for_status()
         token = resp.json()["access_token"]
-        _token_cache.set("token", token)
+        _token_cache.set(cache_key, token)
         return token
 
     def _headers(self) -> dict:
@@ -119,3 +120,13 @@ sort total_rating desc;
 limit {limit};
 """
         return self._post("games", query)
+
+    def text_search(self, query: str, limit: int = 10) -> list[dict]:
+        escaped = query.replace('"', '\\"')
+        body = (
+            f'search "{escaped}"; '
+            f'fields name, summary, cover.url, first_release_date, total_rating, '
+            f'genres.name, themes.name, platforms.name; '
+            f'limit {limit};'
+        )
+        return self._post("games", body)
