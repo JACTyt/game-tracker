@@ -20,15 +20,19 @@
   </div>
 
   <form (ngSubmit)="onSubmit()" class="search-form">
-    <input
+    <textarea
+      #textarea
       [(ngModel)]="query"
       name="query"
+      rows="1"
       [placeholder]="mode() === 'semantic'
         ? 'e.g. a dark fantasy RPG from the 2000s where you play a thief...'
         : 'Search by title or keyword...'"
       [disabled]="loading()"
       autocomplete="off"
-    />
+      (input)="onInput()"
+      (keydown)="onKeydown($event)"
+    ></textarea>
     <button type="submit" [disabled]="loading() || !query.trim()">
       @if (loading()) {
         <span class="spinner"></span>

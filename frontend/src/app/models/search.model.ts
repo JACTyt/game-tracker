@@ -19,6 +19,7 @@ export interface SearchRequest {
 }
 
 export interface ExtractedFilters {
+  game_title?: string;
   genres: string[];
   themes: string[];
   platforms: string[];

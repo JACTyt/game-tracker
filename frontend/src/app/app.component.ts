@@ -36,6 +36,7 @@ export class AppComponent implements OnInit {
   extractedFilters = signal<ExtractedFilters | null>(null);
   filterOptions = signal<FiltersResponse | null>(null);
   activeFilters: UserFilters = {};
+  searchQuery = signal('');
 
   readonly Gamepad2 = Gamepad2;
 
@@ -63,8 +64,8 @@ export class AppComponent implements OnInit {
   }
 
   onRecentSelected(item: RecentSearch) {
-    this.onSearch({ query: item.query, mode: item.mode as SearchMode });
     this.mode.set(item.mode as SearchMode);
+    this.searchQuery.set(item.query);
   }
 
   onSearch(event: { query: string; mode: SearchMode }) {

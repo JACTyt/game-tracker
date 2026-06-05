@@ -12,6 +12,7 @@ import { VaultService } from '../../services/vault.service';
 })
 export class VaultShelfComponent {
   open = signal(true);
+  expandedId = signal<number | null>(null);
 
   readonly Vault = Vault;
   readonly ChevronDown = ChevronDown;
@@ -21,4 +22,8 @@ export class VaultShelfComponent {
   constructor(readonly vault: VaultService) {}
 
   toggle() { this.open.update(v => !v); }
+
+  toggleExpand(igdbId: number) {
+    this.expandedId.update(id => id === igdbId ? null : igdbId);
+  }
 }

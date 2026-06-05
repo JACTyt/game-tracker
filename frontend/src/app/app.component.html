@@ -19,6 +19,7 @@
         [mode]="mode()"
         [loading]="loading()"
         [aiEnabled]="credentials.aiEnabled()"
+        [queryValue]="searchQuery()"
         (searched)="onSearch($event)"
         (modeChanged)="onModeChanged($event)"
       />

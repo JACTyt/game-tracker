@@ -22,6 +22,7 @@ class SearchRequest(BaseModel):
 
 
 class ExtractedFilters(BaseModel):
+    game_title: str | None = None
     genres: list[str] = []
     themes: list[str] = []
     platforms: list[str] = []

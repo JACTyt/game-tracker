@@ -75,6 +75,11 @@ class SearchService:
             return self._text_search(request)
         extracted = self._openai.extract_filters(request.query)
 
+        # If AI identified a specific game title, search for it directly
+        title_games: list[dict] = []
+        if extracted.game_title:
+            title_games = self._igdb.search_games(query=extracted.game_title, limit=5)
+
         # User-applied filters take precedence; GPT-4o fills unset fields
         genres = request.filters.genres or extracted.genres
         themes = request.filters.themes or extracted.themes
@@ -90,7 +95,7 @@ class SearchService:
         platform_ids = self._igdb.resolve_names_to_ids(platforms, all_platforms)
         theme_ids = self._igdb.resolve_names_to_ids(themes, all_themes)
 
-        games = self._igdb.search_games(
+        filter_games = self._igdb.search_games(
             genre_ids=genre_ids,
             theme_ids=theme_ids,
             platform_ids=platform_ids,
@@ -98,6 +103,14 @@ class SearchService:
             year_max=year_max,
             limit=request.limit * 3,
         )
+
+        # Merge: title matches first, then filter results, deduplicated by id
+        seen: set[int] = set()
+        games: list[dict] = []
+        for g in title_games + filter_games:
+            if g["id"] not in seen:
+                seen.add(g["id"])
+                games.append(g)
 
         scored_list = self._openai.score_results(request.query, [
             {

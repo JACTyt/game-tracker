@@ -52,9 +52,10 @@
 .search-form {
   display: flex;
   gap: 0.5rem;
+  align-items: flex-end;
 }
 
-.search-form input {
+.search-form textarea {
   flex: 1;
   padding: 0.7rem 1rem;
   background: var(--bg-surface);
@@ -62,18 +63,24 @@
   border-radius: var(--radius);
   color: var(--text);
   font-size: 0.95rem;
+  font-family: inherit;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
+  resize: none;
+  overflow: hidden;
+  line-height: 1.5;
+  min-height: 46px;
+  max-height: 200px;
 }
 
-.search-form input::placeholder { color: var(--text-muted); }
+.search-form textarea::placeholder { color: var(--text-muted); }
 
-.search-form input:focus {
+.search-form textarea:focus {
   border-color: var(--violet-light);
   box-shadow: 0 0 0 3px var(--violet-glow);
 }
 
-.search-form input:disabled { opacity: 0.5; }
+.search-form textarea:disabled { opacity: 0.5; }
 
 .search-form button[type=submit] {
   width: 46px;
