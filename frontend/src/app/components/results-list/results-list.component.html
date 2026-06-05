@@ -1,10 +1,13 @@
 @if (loading()) {
-  <div class="loading">Searching...</div>
+  <div class="loading">
+    <span class="pulse"></span>
+    Searching...
+  </div>
 }
 
 @if (extractedFilters(); as filters) {
   <div class="extracted-summary">
-    <span>AI understood: </span>
+    <span class="label">AI understood:</span>
     @if (filters.genres.length) { <span class="tag">{{ filters.genres.join(', ') }}</span> }
     @if (filters.platforms.length) { <span class="tag">{{ filters.platforms.join(', ') }}</span> }
     @if (filters.keywords.length) { <span class="tag">{{ filters.keywords.join(', ') }}</span> }

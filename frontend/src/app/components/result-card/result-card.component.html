@@ -3,28 +3,55 @@
     @if (game().cover_url) {
       <img [src]="game().cover_url" [alt]="game().title" />
     } @else {
-      <div class="cover-placeholder">🎮</div>
+      <div class="cover-placeholder">
+        <lucide-icon [img]="Tag" [size]="28" [strokeWidth]="1.5"></lucide-icon>
+      </div>
     }
   </div>
+
   <div class="details">
     <div class="title-row">
       <h3>{{ game().title }}</h3>
       @if (game().score) {
-        <span class="score">{{ game().score }}% match</span>
+        <span class="score">
+          <lucide-icon [img]="Star" [size]="11" [strokeWidth]="2"></lucide-icon>
+          {{ game().score }}%
+        </span>
       }
     </div>
+
     <div class="meta">
-      @if (game().year) { <span>{{ game().year }}</span> }
-      @if (game().genres.length) { <span>{{ game().genres.join(', ') }}</span> }
-      @if (game().platforms.length) { <span>{{ game().platforms.join(', ') }}</span> }
+      @if (game().year) {
+        <span class="meta-item">
+          <lucide-icon [img]="Calendar" [size]="12" [strokeWidth]="2"></lucide-icon>
+          {{ game().year }}
+        </span>
+      }
+      @if (game().genres.length) {
+        <span class="meta-item">
+          <lucide-icon [img]="Tag" [size]="12" [strokeWidth]="2"></lucide-icon>
+          {{ game().genres.slice(0, 3).join(', ') }}
+        </span>
+      }
+      @if (game().platforms.length) {
+        <span class="meta-item">
+          <lucide-icon [img]="Monitor" [size]="12" [strokeWidth]="2"></lucide-icon>
+          {{ game().platforms.slice(0, 2).join(', ') }}
+        </span>
+      }
     </div>
+
     @if (game().summary) {
       <p class="summary">{{ game().summary }}</p>
     }
+
     @if (game().matched_signals.length) {
       <div class="signals">
-        @for (signal of game().matched_signals; track signal) {
-          <span class="signal">&#10003; {{ signal }}</span>
+        @for (sig of game().matched_signals; track sig) {
+          <span class="signal">
+            <lucide-icon [img]="Check" [size]="11" [strokeWidth]="2.5"></lucide-icon>
+            {{ sig }}
+          </span>
         }
       </div>
     }

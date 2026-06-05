@@ -4,6 +4,7 @@
       [class.active]="mode() === 'filter'"
       (click)="setMode('filter')"
       type="button">
+      <lucide-icon [img]="SlidersHorizontal" [size]="15" [strokeWidth]="2"></lucide-icon>
       Use filters
     </button>
     <button
@@ -12,7 +13,9 @@
       [disabled]="!aiEnabled()"
       [title]="aiEnabled() ? '' : 'Add your OpenAI API key in settings to enable AI search'"
       type="button">
+      <lucide-icon [img]="Sparkles" [size]="15" [strokeWidth]="2"></lucide-icon>
       Describe it
+      @if (!aiEnabled()) { <span class="ai-lock">AI</span> }
     </button>
   </div>
 
@@ -21,13 +24,17 @@
       [(ngModel)]="query"
       name="query"
       [placeholder]="mode() === 'semantic'
-        ? 'Describe the game you remember...'
+        ? 'e.g. a dark fantasy RPG from the 2000s where you play a thief...'
         : 'Search by title or keyword...'"
       [disabled]="loading()"
       autocomplete="off"
     />
-    <button type="submit" [disabled]="loading()">
-      {{ loading() ? '...' : 'Search' }}
+    <button type="submit" [disabled]="loading() || !query.trim()">
+      @if (loading()) {
+        <span class="spinner"></span>
+      } @else {
+        <lucide-icon [img]="Search" [size]="17" [strokeWidth]="2.5"></lucide-icon>
+      }
     </button>
   </form>
 </div>

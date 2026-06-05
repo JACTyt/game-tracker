@@ -1,14 +1,16 @@
 import { Component, output, input, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { LucideAngularModule, SlidersHorizontal, Sparkles, Search } from 'lucide-angular';
 
 export type SearchMode = 'filter' | 'semantic';
 
 @Component({
   selector: 'app-search-bar',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, LucideAngularModule],
   templateUrl: './search-bar.component.html',
+  styleUrl: './search-bar.component.css',
 })
 export class SearchBarComponent {
   mode = input<SearchMode>('filter');
@@ -19,6 +21,10 @@ export class SearchBarComponent {
   modeChanged = output<SearchMode>();
 
   query = '';
+
+  readonly SlidersHorizontal = SlidersHorizontal;
+  readonly Sparkles = Sparkles;
+  readonly Search = Search;
 
   constructor() {
     effect(() => {

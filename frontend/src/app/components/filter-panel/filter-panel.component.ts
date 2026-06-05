@@ -7,6 +7,7 @@ import { FiltersResponse, UserFilters } from '../../models/search.model';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './filter-panel.component.html',
+  styleUrl: './filter-panel.component.css',
 })
 export class FilterPanelComponent {
   options = input<FiltersResponse | null>(null);

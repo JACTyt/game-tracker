@@ -1,5 +1,6 @@
 import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LucideAngularModule, Gamepad2 } from 'lucide-angular';
 import { SearchBarComponent, SearchMode } from './components/search-bar/search-bar.component';
 import { FilterPanelComponent } from './components/filter-panel/filter-panel.component';
 import { ResultsListComponent } from './components/results-list/results-list.component';
@@ -11,7 +12,7 @@ import { FiltersResponse, GameResult, ExtractedFilters, UserFilters } from './mo
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, SearchBarComponent, FilterPanelComponent, ResultsListComponent, SettingsPanelComponent],
+  imports: [CommonModule, LucideAngularModule, SearchBarComponent, FilterPanelComponent, ResultsListComponent, SettingsPanelComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
@@ -23,6 +24,8 @@ export class AppComponent implements OnInit {
   extractedFilters = signal<ExtractedFilters | null>(null);
   filterOptions = signal<FiltersResponse | null>(null);
   activeFilters: UserFilters = {};
+
+  readonly Gamepad2 = Gamepad2;
 
   constructor(
     private searchService: SearchService,

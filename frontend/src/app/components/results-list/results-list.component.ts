@@ -8,6 +8,7 @@ import { ResultCardComponent } from '../result-card/result-card.component';
   standalone: true,
   imports: [CommonModule, ResultCardComponent],
   templateUrl: './results-list.component.html',
+  styleUrl: './results-list.component.css',
 })
 export class ResultsListComponent {
   results = input<GameResult[]>([]);

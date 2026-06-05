@@ -1,0 +1,46 @@
+.filter-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.filter-group h4 {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.filter-chips button {
+  padding: 0.28rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  transition: all 0.12s;
+}
+
+.filter-chips button:hover {
+  border-color: rgba(124,58,237,0.4);
+  color: var(--text);
+}
+
+.filter-chips button.active {
+  background: var(--violet);
+  border-color: var(--violet);
+  color: #fff;
+  font-weight: 500;
+}
