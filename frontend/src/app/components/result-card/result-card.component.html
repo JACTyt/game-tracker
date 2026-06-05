@@ -1,59 +1,117 @@
-<div class="result-card">
-  <div class="cover">
-    @if (game().cover_url) {
-      <img [src]="game().cover_url" [alt]="game().title" />
-    } @else {
-      <div class="cover-placeholder">
-        <lucide-icon [img]="Tag" [size]="28" [strokeWidth]="1.5"></lucide-icon>
+<div class="result-card" [class.expanded]="expanded()" (click)="toggle($event)">
+  <div class="card-main">
+    <div class="cover">
+      @if (game().cover_url) {
+        <img [src]="game().cover_url" [alt]="game().title" />
+      } @else {
+        <div class="cover-placeholder">
+          <lucide-icon [img]="Tag" [size]="28" [strokeWidth]="1.5"></lucide-icon>
+        </div>
+      }
+    </div>
+
+    <div class="details">
+      <div class="title-row">
+        <h3>{{ game().title }}</h3>
+        @if (game().score) {
+          <span class="score">
+            <lucide-icon [img]="Star" [size]="11" [strokeWidth]="2"></lucide-icon>
+            {{ game().score }}%
+          </span>
+        }
+        <lucide-icon [img]="ChevronDown" [size]="16" [strokeWidth]="2" class="chevron" [class.open]="expanded()"></lucide-icon>
       </div>
-    }
-  </div>
 
-  <div class="details">
-    <div class="title-row">
-      <h3>{{ game().title }}</h3>
-      @if (game().score) {
-        <span class="score">
-          <lucide-icon [img]="Star" [size]="11" [strokeWidth]="2"></lucide-icon>
-          {{ game().score }}%
-        </span>
-      }
-    </div>
-
-    <div class="meta">
-      @if (game().year) {
-        <span class="meta-item">
-          <lucide-icon [img]="Calendar" [size]="12" [strokeWidth]="2"></lucide-icon>
-          {{ game().year }}
-        </span>
-      }
-      @if (game().genres.length) {
-        <span class="meta-item">
-          <lucide-icon [img]="Tag" [size]="12" [strokeWidth]="2"></lucide-icon>
-          {{ game().genres.slice(0, 3).join(', ') }}
-        </span>
-      }
-      @if (game().platforms.length) {
-        <span class="meta-item">
-          <lucide-icon [img]="Monitor" [size]="12" [strokeWidth]="2"></lucide-icon>
-          {{ game().platforms.slice(0, 2).join(', ') }}
-        </span>
-      }
-    </div>
-
-    @if (game().summary) {
-      <p class="summary">{{ game().summary }}</p>
-    }
-
-    @if (game().matched_signals.length) {
-      <div class="signals">
-        @for (sig of game().matched_signals; track sig) {
-          <span class="signal">
-            <lucide-icon [img]="Check" [size]="11" [strokeWidth]="2.5"></lucide-icon>
-            {{ sig }}
+      <div class="meta">
+        @if (game().year) {
+          <span class="meta-item">
+            <lucide-icon [img]="Calendar" [size]="12" [strokeWidth]="2"></lucide-icon>
+            {{ game().year }}
+          </span>
+        }
+        @if (game().genres.length) {
+          <span class="meta-item">
+            <lucide-icon [img]="Tag" [size]="12" [strokeWidth]="2"></lucide-icon>
+            {{ game().genres.slice(0, 3).join(', ') }}
+          </span>
+        }
+        @if (game().platforms.length) {
+          <span class="meta-item">
+            <lucide-icon [img]="Monitor" [size]="12" [strokeWidth]="2"></lucide-icon>
+            {{ game().platforms.slice(0, 2).join(', ') }}
           </span>
         }
       </div>
-    }
+
+      @if (game().summary && !expanded()) {
+        <p class="summary">{{ game().summary }}</p>
+      }
+
+      @if (game().matched_signals.length && !expanded()) {
+        <div class="signals">
+          @for (sig of game().matched_signals; track sig) {
+            <span class="signal">
+              <lucide-icon [img]="Check" [size]="11" [strokeWidth]="2.5"></lucide-icon>
+              {{ sig }}
+            </span>
+          }
+        </div>
+      }
+    </div>
   </div>
+
+  @if (expanded()) {
+    <div class="card-expanded" (click)="$event.stopPropagation()">
+      @if (game().summary) {
+        <p class="summary-full">{{ game().summary }}</p>
+      }
+
+      <div class="expanded-meta">
+        @if (game().genres.length) {
+          <div class="meta-group">
+            <span class="meta-label">Genres</span>
+            <div class="tag-list">
+              @for (g of game().genres; track g) { <span class="chip">{{ g }}</span> }
+            </div>
+          </div>
+        }
+        @if (game().platforms.length) {
+          <div class="meta-group">
+            <span class="meta-label">Platforms</span>
+            <div class="tag-list">
+              @for (p of game().platforms; track p) { <span class="chip">{{ p }}</span> }
+            </div>
+          </div>
+        }
+        @if (game().matched_signals.length) {
+          <div class="meta-group">
+            <span class="meta-label">Matched</span>
+            <div class="tag-list">
+              @for (sig of game().matched_signals; track sig) {
+                <span class="chip signal-chip">
+                  <lucide-icon [img]="Check" [size]="11" [strokeWidth]="2.5"></lucide-icon>
+                  {{ sig }}
+                </span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="card-actions">
+        @if (vault.isSaved(game().igdb_id)) {
+          <button class="btn-saved" (click)="removeFromVault($event)">
+            <lucide-icon [img]="Vault" [size]="15" [strokeWidth]="2"></lucide-icon>
+            Saved to Vault
+            <lucide-icon [img]="X" [size]="13" [strokeWidth]="2" class="remove-icon"></lucide-icon>
+          </button>
+        } @else {
+          <button class="btn-save" (click)="saveToVault($event)">
+            <lucide-icon [img]="Vault" [size]="15" [strokeWidth]="2"></lucide-icon>
+            Yes, this is the game!
+          </button>
+        }
+      </div>
+    </div>
+  }
 </div>

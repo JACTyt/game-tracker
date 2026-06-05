@@ -5,14 +5,26 @@ import { SearchBarComponent, SearchMode } from './components/search-bar/search-b
 import { FilterPanelComponent } from './components/filter-panel/filter-panel.component';
 import { ResultsListComponent } from './components/results-list/results-list.component';
 import { SettingsPanelComponent } from './components/settings-panel/settings-panel.component';
+import { RecentSearchesComponent } from './components/recent-searches/recent-searches.component';
+import { VaultShelfComponent } from './components/vault-shelf/vault-shelf.component';
 import { SearchService } from './services/search.service';
 import { CredentialsService } from './services/credentials.service';
+import { SearchHistoryService, RecentSearch } from './services/search-history.service';
 import { FiltersResponse, GameResult, ExtractedFilters, UserFilters } from './models/search.model';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, SearchBarComponent, FilterPanelComponent, ResultsListComponent, SettingsPanelComponent],
+  imports: [
+    CommonModule,
+    LucideAngularModule,
+    SearchBarComponent,
+    FilterPanelComponent,
+    ResultsListComponent,
+    SettingsPanelComponent,
+    RecentSearchesComponent,
+    VaultShelfComponent,
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
@@ -29,6 +41,7 @@ export class AppComponent implements OnInit {
 
   constructor(
     private searchService: SearchService,
+    private searchHistory: SearchHistoryService,
     readonly credentials: CredentialsService,
   ) {}
 
@@ -49,10 +62,16 @@ export class AppComponent implements OnInit {
     this.activeFilters = filters;
   }
 
+  onRecentSelected(item: RecentSearch) {
+    this.onSearch({ query: item.query, mode: item.mode as SearchMode });
+    this.mode.set(item.mode as SearchMode);
+  }
+
   onSearch(event: { query: string; mode: SearchMode }) {
     this.loading.set(true);
     this.results.set([]);
     this.extractedFilters.set(null);
+    this.searchHistory.add(event.query, event.mode);
 
     this.searchService.search({
       query: event.query,

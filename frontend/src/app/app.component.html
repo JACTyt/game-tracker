@@ -2,7 +2,7 @@
   <header>
     <div class="logo">
       <div class="logo-icon">
-        <lucide-icon name="gamepad-2" [size]="22" [strokeWidth]="2"></lucide-icon>
+        <lucide-icon [img]="Gamepad2" [size]="22" [strokeWidth]="2"></lucide-icon>
       </div>
       <h1>GameVault</h1>
     </div>
@@ -13,6 +13,8 @@
     <app-settings-panel />
 
     @if (credentials.igdbConfigured()) {
+      <app-vault-shelf />
+
       <app-search-bar
         [mode]="mode()"
         [loading]="loading()"
@@ -20,6 +22,8 @@
         (searched)="onSearch($event)"
         (modeChanged)="onModeChanged($event)"
       />
+
+      <app-recent-searches (selected)="onRecentSelected($event)" />
 
       @if (mode() === 'filter') {
         <app-filter-panel

@@ -1,0 +1,35 @@
+@if (vault.games().length) {
+  <div class="vault-shelf">
+    <button class="vault-header" (click)="toggle()" type="button">
+      <lucide-icon [img]="Vault" [size]="15" [strokeWidth]="2"></lucide-icon>
+      <span>My Vault</span>
+      <span class="count">{{ vault.games().length }}</span>
+      <lucide-icon [img]="ChevronDown" [size]="15" [strokeWidth]="2" class="chevron" [class.open]="open()"></lucide-icon>
+    </button>
+
+    @if (open()) {
+      <div class="vault-grid">
+        @for (game of vault.games(); track game.igdb_id) {
+          <div class="vault-card">
+            <div class="vault-cover">
+              @if (game.cover_url) {
+                <img [src]="game.cover_url" [alt]="game.title" />
+              } @else {
+                <div class="cover-placeholder">
+                  <lucide-icon [img]="Tag" [size]="18" [strokeWidth]="1.5"></lucide-icon>
+                </div>
+              }
+            </div>
+            <div class="vault-info">
+              <span class="vault-title" [title]="game.title">{{ game.title }}</span>
+              @if (game.year) { <span class="vault-year">{{ game.year }}</span> }
+            </div>
+            <button class="remove-btn" (click)="vault.remove(game.igdb_id)" type="button" title="Remove from vault">
+              <lucide-icon [img]="X" [size]="13" [strokeWidth]="2"></lucide-icon>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}

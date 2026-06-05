@@ -1,0 +1,19 @@
+@if (history.recent().length) {
+  <div class="recent-searches">
+    <span class="label">
+      <lucide-icon [img]="History" [size]="13" [strokeWidth]="2"></lucide-icon>
+      Recent
+    </span>
+    <div class="chips">
+      @for (item of history.recent(); track item.timestamp) {
+        <button class="chip" (click)="selected.emit(item)" type="button">
+          {{ item.query }}
+          <span class="mode-badge">{{ item.mode === 'semantic' ? 'AI' : 'filter' }}</span>
+        </button>
+      }
+    </div>
+    <button class="clear-btn" (click)="history.clear()" type="button" title="Clear history">
+      <lucide-icon [img]="X" [size]="13" [strokeWidth]="2"></lucide-icon>
+    </button>
+  </div>
+}
