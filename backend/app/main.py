@@ -5,9 +5,12 @@ import os
 
 app = FastAPI(title="GameTrace API")
 
+_raw_origins = os.getenv("FRONTEND_URL", "http://localhost:4200")
+_allowed_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.getenv("FRONTEND_URL", "http://localhost:4200")],
+    allow_origins=_allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
