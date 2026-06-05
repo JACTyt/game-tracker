@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://your-railway-app.up.railway.app',
+  apiUrl: 'https://game-tracker-production-b26a.up.railway.app',
 };
