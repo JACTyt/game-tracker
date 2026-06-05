@@ -1,0 +1,29 @@
+<div class="app">
+  <header>
+    <h1>GameTrace</h1>
+    <p>Find the game you can't remember — by describing it.</p>
+  </header>
+
+  <main>
+    <app-search-bar
+      [mode]="mode()"
+      [loading]="loading()"
+      (searched)="onSearch($event)"
+      (modeChanged)="onModeChanged($event)"
+    />
+
+    @if (mode() === 'filter') {
+      <app-filter-panel
+        [options]="filterOptions()"
+        (filtersChanged)="onFiltersChanged($event)"
+      />
+    }
+
+    <app-results-list
+      [results]="results()"
+      [extractedFilters]="extractedFilters()"
+      [loading]="loading()"
+      [hasSearched]="hasSearched()"
+    />
+  </main>
+</div>

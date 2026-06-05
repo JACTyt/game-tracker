@@ -1,0 +1,22 @@
+@if (loading()) {
+  <div class="loading">Searching...</div>
+}
+
+@if (extractedFilters(); as filters) {
+  <div class="extracted-summary">
+    <span>AI understood: </span>
+    @if (filters.genres.length) { <span class="tag">{{ filters.genres.join(', ') }}</span> }
+    @if (filters.platforms.length) { <span class="tag">{{ filters.platforms.join(', ') }}</span> }
+    @if (filters.keywords.length) { <span class="tag">{{ filters.keywords.join(', ') }}</span> }
+  </div>
+}
+
+@if (!loading() && hasSearched() && results().length === 0) {
+  <div class="empty">No results found. Try different filters or a different description.</div>
+}
+
+<div class="results-list">
+  @for (game of results(); track game.igdb_id) {
+    <app-result-card [game]="game" />
+  }
+</div>

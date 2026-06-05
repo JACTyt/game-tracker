@@ -1,0 +1,32 @@
+<div class="result-card">
+  <div class="cover">
+    @if (game().cover_url) {
+      <img [src]="game().cover_url" [alt]="game().title" />
+    } @else {
+      <div class="cover-placeholder">🎮</div>
+    }
+  </div>
+  <div class="details">
+    <div class="title-row">
+      <h3>{{ game().title }}</h3>
+      @if (game().score) {
+        <span class="score">{{ game().score }}% match</span>
+      }
+    </div>
+    <div class="meta">
+      @if (game().year) { <span>{{ game().year }}</span> }
+      @if (game().genres.length) { <span>{{ game().genres.join(', ') }}</span> }
+      @if (game().platforms.length) { <span>{{ game().platforms.join(', ') }}</span> }
+    </div>
+    @if (game().summary) {
+      <p class="summary">{{ game().summary }}</p>
+    }
+    @if (game().matched_signals.length) {
+      <div class="signals">
+        @for (signal of game().matched_signals; track signal) {
+          <span class="signal">&#10003; {{ signal }}</span>
+        }
+      </div>
+    }
+  </div>
+</div>

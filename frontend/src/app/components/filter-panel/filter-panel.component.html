@@ -1,0 +1,34 @@
+@if (options()) {
+  <div class="filter-panel">
+    <div class="filter-group">
+      <h4>Genres</h4>
+      <div class="filter-chips">
+        @for (g of options()!.genres; track g.id) {
+          <button [class.active]="isActive('genres', g.name)" (click)="toggleItem('genres', g.name)" type="button">
+            {{ g.name }}
+          </button>
+        }
+      </div>
+    </div>
+    <div class="filter-group">
+      <h4>Platforms</h4>
+      <div class="filter-chips">
+        @for (p of options()!.platforms; track p.id) {
+          <button [class.active]="isActive('platforms', p.name)" (click)="toggleItem('platforms', p.name)" type="button">
+            {{ p.name }}
+          </button>
+        }
+      </div>
+    </div>
+    <div class="filter-group">
+      <h4>Themes</h4>
+      <div class="filter-chips">
+        @for (t of options()!.themes; track t.id) {
+          <button [class.active]="isActive('themes', t.name)" (click)="toggleItem('themes', t.name)" type="button">
+            {{ t.name }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}

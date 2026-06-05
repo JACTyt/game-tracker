@@ -1,0 +1,31 @@
+<div class="search-bar">
+  <div class="mode-toggle">
+    <button
+      [class.active]="mode() === 'filter'"
+      (click)="setMode('filter')"
+      type="button">
+      Use filters
+    </button>
+    <button
+      [class.active]="mode() === 'semantic'"
+      (click)="setMode('semantic')"
+      type="button">
+      Describe it
+    </button>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" class="search-form">
+    <input
+      [(ngModel)]="query"
+      name="query"
+      [placeholder]="mode() === 'semantic'
+        ? 'Describe the game you remember...'
+        : 'Search by title or keyword...'"
+      [disabled]="loading()"
+      autocomplete="off"
+    />
+    <button type="submit" [disabled]="loading()">
+      {{ loading() ? '...' : 'Search' }}
+    </button>
+  </form>
+</div>
