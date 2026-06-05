@@ -85,41 +85,37 @@ class IGDBClient:
 
     def search_games(
         self,
+        query: str = "",
         genre_ids: list[int] = [],
         theme_ids: list[int] = [],
         platform_ids: list[int] = [],
-        keywords: list[str] = [],
         year_min: int | None = None,
         year_max: int | None = None,
         limit: int = 10,
     ) -> list[dict]:
-        conditions = ["total_rating > 30", "version_parent = null"]
+        conditions = ["version_parent = null"]
 
         if genre_ids:
-            ids = " & ".join(str(i) for i in genre_ids)
-            conditions.append(f"genres = ({ids})")
+            conditions.append(f"genres = ({' & '.join(str(i) for i in genre_ids)})")
         if theme_ids:
-            ids = " & ".join(str(i) for i in theme_ids)
-            conditions.append(f"themes = ({ids})")
+            conditions.append(f"themes = ({' & '.join(str(i) for i in theme_ids)})")
         if platform_ids:
-            ids = " | ".join(str(i) for i in platform_ids)
-            conditions.append(f"platforms = ({ids})")
+            conditions.append(f"platforms = ({' | '.join(str(i) for i in platform_ids)})")
         if year_min:
-            ts = int(datetime.datetime(year_min, 1, 1).timestamp())
-            conditions.append(f"first_release_date >= {ts}")
+            conditions.append(f"first_release_date >= {int(datetime.datetime(year_min, 1, 1).timestamp())}")
         if year_max:
-            ts = int(datetime.datetime(year_max, 12, 31, 23, 59, 59).timestamp())
-            conditions.append(f"first_release_date <= {ts}")
+            conditions.append(f"first_release_date <= {int(datetime.datetime(year_max, 12, 31, 23, 59, 59).timestamp())}")
 
         where_clause = " & ".join(conditions)
-        query = f"""
-fields name, summary, cover.url, first_release_date, total_rating,
-       genres.name, themes.name, platforms.name;
-where {where_clause};
-sort total_rating desc;
-limit {limit};
-"""
-        return self._post("games", query)
+        fields = "fields name, summary, cover.url, first_release_date, total_rating, genres.name, themes.name, platforms.name;"
+
+        if query:
+            escaped = query.replace('"', '\\"')
+            body = f'search "{escaped}"; {fields} where {where_clause}; limit {limit};'
+        else:
+            body = f'{fields} where {where_clause}; sort total_rating desc; limit {limit};'
+
+        return self._post("games", body)
 
     def text_search(self, query: str, limit: int = 10) -> list[dict]:
         escaped = query.replace('"', '\\"')

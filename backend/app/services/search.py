@@ -54,6 +54,7 @@ class SearchService:
         theme_ids = self._igdb.resolve_names_to_ids(request.filters.themes, themes)
 
         games = self._igdb.search_games(
+            query=request.query,
             genre_ids=genre_ids,
             theme_ids=theme_ids,
             platform_ids=platform_ids,
