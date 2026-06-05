@@ -33,16 +33,48 @@ class ExtractedFilters(BaseModel):
     confidence: str = "medium"
 
 
+class GameWebsite(BaseModel):
+    url: str
+    category: int
+
+
+class GameAgeRating(BaseModel):
+    category: int
+    rating: int
+
+
 class GameResult(BaseModel):
     igdb_id: int
     title: str
     cover_url: str | None = None
     year: int | None = None
+    release_date: str | None = None
     genres: list[str] = []
+    themes: list[str] = []
     platforms: list[str] = []
     summary: str | None = None
+    storyline: str | None = None
     score: int | None = None
     matched_signals: list[str] = []
+    developers: list[str] = []
+    publishers: list[str] = []
+    supporting_developers: list[str] = []
+    game_modes: list[str] = []
+    player_perspectives: list[str] = []
+    series: list[str] = []
+    franchises: list[str] = []
+    game_engines: list[str] = []
+    alternative_titles: list[str] = []
+    keywords: list[str] = []
+    user_rating: float | None = None
+    user_rating_count: int | None = None
+    critic_rating: float | None = None
+    critic_rating_count: int | None = None
+    websites: list[GameWebsite] = []
+    supported_languages: list[str] = []
+    updated_date: str | None = None
+    age_ratings: list[GameAgeRating] = []
+    trailer_id: str | None = None
 
 
 class SearchResponse(BaseModel):

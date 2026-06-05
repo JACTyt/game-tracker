@@ -1,5 +1,8 @@
 import datetime
-from app.models.search import SearchRequest, SearchResponse, GameResult, ExtractedFilters
+from app.models.search import (
+    SearchRequest, SearchResponse, GameResult, ExtractedFilters,
+    GameWebsite, GameAgeRating,
+)
 from app.services.igdb import IGDBClient
 
 
@@ -17,20 +20,87 @@ def _extract_year(timestamp: int | None) -> int | None:
     return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc).year
 
 
+def _fmt_ts(timestamp: int | None, fmt: str = "%b %d, %Y") -> str | None:
+    if not timestamp:
+        return None
+    return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc).strftime(fmt)
+
+
 def _igdb_game_to_result(game: dict, score_map: dict[int, dict] | None = None) -> GameResult:
     if score_map is None:
         score_map = {}
     scored = score_map.get(game["id"], {})
+
+    involved = game.get("involved_companies", [])
+    developers = [
+        c["company"]["name"] for c in involved
+        if c.get("developer") and c.get("company") and c["company"].get("name")
+    ]
+    publishers = [
+        c["company"]["name"] for c in involved
+        if c.get("publisher") and c.get("company") and c["company"].get("name")
+    ]
+    supporting = [
+        c["company"]["name"] for c in involved
+        if c.get("supporting") and not c.get("developer") and not c.get("publisher")
+        and c.get("company") and c["company"].get("name")
+    ]
+
+    videos = game.get("videos", [])
+    trailer_id = videos[0]["video_id"] if videos else None
+
+    websites = [
+        GameWebsite(url=w["url"], category=w["category"])
+        for w in game.get("websites", [])
+        if w.get("url") and w.get("category") is not None
+    ]
+
+    age_ratings = [
+        GameAgeRating(category=r["category"], rating=r["rating"])
+        for r in game.get("age_ratings", [])
+        if r.get("category") is not None and r.get("rating") is not None
+    ]
+
+    languages = sorted({
+        lc["language"]["name"]
+        for lc in game.get("language_supports", [])
+        if lc.get("language") and lc["language"].get("name")
+    })
+
+    release_ts = game.get("first_release_date")
+
     return GameResult(
         igdb_id=game["id"],
         title=game.get("name", ""),
-        cover_url=_normalize_cover_url(game.get("cover", {}).get("url")),
-        year=_extract_year(game.get("first_release_date")),
+        cover_url=_normalize_cover_url((game.get("cover") or {}).get("url")),
+        year=_extract_year(release_ts),
+        release_date=_fmt_ts(release_ts),
         genres=[g["name"] for g in game.get("genres", [])],
+        themes=[t["name"] for t in game.get("themes", [])],
         platforms=[p["name"] for p in game.get("platforms", [])],
         summary=game.get("summary"),
+        storyline=game.get("storyline"),
         score=scored.get("score", int(game.get("total_rating", 0)) if game.get("total_rating") else None),
         matched_signals=scored.get("matched_signals", []),
+        developers=developers,
+        publishers=publishers,
+        supporting_developers=supporting,
+        game_modes=[m["name"] for m in game.get("game_modes", [])],
+        player_perspectives=[p["name"] for p in game.get("player_perspectives", [])],
+        series=[c["name"] for c in game.get("collections", [])],
+        franchises=[f["name"] for f in game.get("franchises", [])],
+        game_engines=[e["name"] for e in game.get("game_engines", [])],
+        alternative_titles=[a["name"] for a in game.get("alternative_names", [])],
+        keywords=[k["name"] for k in game.get("keywords", [])[:20]],
+        user_rating=game.get("rating"),
+        user_rating_count=game.get("rating_count"),
+        critic_rating=game.get("aggregated_rating"),
+        critic_rating_count=game.get("aggregated_rating_count"),
+        websites=websites,
+        supported_languages=languages[:30],
+        updated_date=_fmt_ts(game.get("updated_at")),
+        age_ratings=age_ratings,
+        trailer_id=trailer_id,
     )
 
 
@@ -75,12 +145,10 @@ class SearchService:
             return self._text_search(request)
         extracted = self._openai.extract_filters(request.query)
 
-        # If AI identified a specific game title, search for it directly
         title_games: list[dict] = []
         if extracted.game_title:
             title_games = self._igdb.search_games(query=extracted.game_title, limit=5)
 
-        # User-applied filters take precedence; GPT-4o fills unset fields
         genres = request.filters.genres or extracted.genres
         themes = request.filters.themes or extracted.themes
         platforms = request.filters.platforms or extracted.platforms
@@ -104,7 +172,6 @@ class SearchService:
             limit=request.limit * 3,
         )
 
-        # Merge: title matches first, then filter results, deduplicated by id
         seen: set[int] = set()
         games: list[dict] = []
         for g in title_games + filter_games:

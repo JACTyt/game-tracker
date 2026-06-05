@@ -10,6 +10,21 @@ _genre_cache = TTLCache(ttl_seconds=3600 * 24)
 _platform_cache = TTLCache(ttl_seconds=3600 * 24)
 _theme_cache = TTLCache(ttl_seconds=3600 * 24)
 
+_GAME_FIELDS = (
+    "fields id, name, summary, storyline, cover.url, first_release_date, updated_at, "
+    "total_rating, rating, rating_count, aggregated_rating, aggregated_rating_count, "
+    "genres.name, themes.name, platforms.name, "
+    "involved_companies.company.name, involved_companies.developer, "
+    "involved_companies.publisher, involved_companies.supporting, "
+    "game_modes.name, player_perspectives.name, "
+    "collections.name, franchises.name, game_engines.name, "
+    "alternative_names.name, keywords.name, "
+    "websites.url, websites.category, "
+    "language_supports.language.name, "
+    "age_ratings.category, age_ratings.rating, "
+    "videos.video_id, videos.name"
+)
+
 
 class IGDBClient:
     def __init__(self, client_id: str, client_secret: str):
@@ -107,22 +122,16 @@ class IGDBClient:
             conditions.append(f"first_release_date <= {int(datetime.datetime(year_max, 12, 31, 23, 59, 59).timestamp())}")
 
         where_clause = " & ".join(conditions)
-        fields = "fields name, summary, cover.url, first_release_date, total_rating, genres.name, themes.name, platforms.name;"
 
         if query:
             escaped = query.replace('"', '\\"')
-            body = f'search "{escaped}"; {fields} where {where_clause}; limit {limit};'
+            body = f'search "{escaped}"; {_GAME_FIELDS}; where {where_clause}; limit {limit};'
         else:
-            body = f'{fields} where {where_clause}; sort total_rating desc; limit {limit};'
+            body = f'{_GAME_FIELDS}; where {where_clause}; sort total_rating desc; limit {limit};'
 
         return self._post("games", body)
 
     def text_search(self, query: str, limit: int = 10) -> list[dict]:
         escaped = query.replace('"', '\\"')
-        body = (
-            f'search "{escaped}"; '
-            f'fields name, summary, cover.url, first_release_date, total_rating, '
-            f'genres.name, themes.name, platforms.name; '
-            f'limit {limit};'
-        )
+        body = f'search "{escaped}"; {_GAME_FIELDS}; limit {limit};'
         return self._post("games", body)

@@ -28,16 +28,48 @@ export interface ExtractedFilters {
   confidence: string;
 }
 
+export interface GameWebsite {
+  url: string;
+  category: number;
+}
+
+export interface GameAgeRating {
+  category: number;
+  rating: number;
+}
+
 export interface GameResult {
   igdb_id: number;
   title: string;
   cover_url?: string;
   year?: number;
+  release_date?: string;
   genres: string[];
+  themes: string[];
   platforms: string[];
   summary?: string;
+  storyline?: string;
   score?: number;
   matched_signals: string[];
+  developers: string[];
+  publishers: string[];
+  supporting_developers: string[];
+  game_modes: string[];
+  player_perspectives: string[];
+  series: string[];
+  franchises: string[];
+  game_engines: string[];
+  alternative_titles: string[];
+  keywords: string[];
+  user_rating?: number;
+  user_rating_count?: number;
+  critic_rating?: number;
+  critic_rating_count?: number;
+  websites: GameWebsite[];
+  supported_languages: string[];
+  updated_date?: string;
+  age_ratings: GameAgeRating[];
+  trailer_id?: string;
 }
 
 export interface SearchResponse {

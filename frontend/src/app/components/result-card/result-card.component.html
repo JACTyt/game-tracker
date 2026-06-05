@@ -62,16 +62,138 @@
 
   @if (expanded()) {
     <div class="card-expanded" (click)="$event.stopPropagation()">
+
+      <!-- Story -->
       @if (game().summary) {
         <p class="summary-full">{{ game().summary }}</p>
       }
+      @if (game().storyline && game().storyline !== game().summary) {
+        <p class="storyline">{{ game().storyline }}</p>
+      }
 
-      <div class="expanded-meta">
+      <!-- Ratings -->
+      @if (game().user_rating || game().critic_rating) {
+        <div class="section ratings-row">
+          @if (game().user_rating) {
+            <div class="rating-item">
+              <lucide-icon [img]="Star" [size]="13" [strokeWidth]="2" class="icon-star"></lucide-icon>
+              <span class="rating-value">{{ game().user_rating!.toFixed(1) }}</span>
+              <span class="rating-sub">/ 100 User</span>
+              @if (game().user_rating_count) {
+                <span class="rating-count">({{ formatCount(game().user_rating_count!) }})</span>
+              }
+            </div>
+          }
+          @if (game().critic_rating) {
+            <div class="rating-item">
+              <lucide-icon [img]="Trophy" [size]="13" [strokeWidth]="2" class="icon-trophy"></lucide-icon>
+              <span class="rating-value">{{ game().critic_rating!.toFixed(1) }}</span>
+              <span class="rating-sub">/ 100 Critics</span>
+              @if (game().critic_rating_count) {
+                <span class="rating-count">({{ game().critic_rating_count }})</span>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Team -->
+      @if (game().developers.length || game().publishers.length || game().supporting_developers.length) {
+        <div class="section">
+          @if (game().developers.length) {
+            <div class="meta-group">
+              <span class="meta-label">Developer</span>
+              <div class="tag-list">
+                @for (d of game().developers; track d) { <span class="chip">{{ d }}</span> }
+              </div>
+            </div>
+          }
+          @if (game().publishers.length) {
+            <div class="meta-group">
+              <span class="meta-label">Publisher</span>
+              <div class="tag-list">
+                @for (p of game().publishers; track p) { <span class="chip">{{ p }}</span> }
+              </div>
+            </div>
+          }
+          @if (game().supporting_developers.length) {
+            <div class="meta-group">
+              <span class="meta-label">Supporting</span>
+              <div class="tag-list">
+                @for (s of game().supporting_developers; track s) { <span class="chip">{{ s }}</span> }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Game Info -->
+      @if (game().game_engines.length || game().game_modes.length || game().player_perspectives.length) {
+        <div class="section">
+          @if (game().game_engines.length) {
+            <div class="meta-group">
+              <span class="meta-label">Engine</span>
+              <div class="tag-list">
+                @for (e of game().game_engines; track e) { <span class="chip">{{ e }}</span> }
+              </div>
+            </div>
+          }
+          @if (game().game_modes.length) {
+            <div class="meta-group">
+              <span class="meta-label">Game Modes</span>
+              <div class="tag-list">
+                @for (m of game().game_modes; track m) { <span class="chip">{{ m }}</span> }
+              </div>
+            </div>
+          }
+          @if (game().player_perspectives.length) {
+            <div class="meta-group">
+              <span class="meta-label">Perspective</span>
+              <div class="tag-list">
+                @for (p of game().player_perspectives; track p) { <span class="chip">{{ p }}</span> }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Series & Franchise -->
+      @if (game().series.length || game().franchises.length) {
+        <div class="section">
+          @if (game().series.length) {
+            <div class="meta-group">
+              <span class="meta-label">Series</span>
+              <div class="tag-list">
+                @for (s of game().series; track s) { <span class="chip">{{ s }}</span> }
+              </div>
+            </div>
+          }
+          @if (game().franchises.length) {
+            <div class="meta-group">
+              <span class="meta-label">Franchise</span>
+              <div class="tag-list">
+                @for (f of game().franchises; track f) { <span class="chip">{{ f }}</span> }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Classification -->
+      <div class="section">
         @if (game().genres.length) {
           <div class="meta-group">
             <span class="meta-label">Genres</span>
             <div class="tag-list">
               @for (g of game().genres; track g) { <span class="chip">{{ g }}</span> }
+            </div>
+          </div>
+        }
+        @if (game().themes.length) {
+          <div class="meta-group">
+            <span class="meta-label">Themes</span>
+            <div class="tag-list">
+              @for (t of game().themes; track t) { <span class="chip">{{ t }}</span> }
             </div>
           </div>
         }
@@ -83,9 +205,37 @@
             </div>
           </div>
         }
-        @if (game().matched_signals.length) {
+      </div>
+
+      <!-- Alternative Titles -->
+      @if (game().alternative_titles.length) {
+        <div class="section">
           <div class="meta-group">
-            <span class="meta-label">Matched</span>
+            <span class="meta-label">Also known as</span>
+            <div class="tag-list">
+              @for (a of game().alternative_titles; track a) { <span class="chip">{{ a }}</span> }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Keywords -->
+      @if (game().keywords.length) {
+        <div class="section">
+          <div class="meta-group">
+            <span class="meta-label">Keywords</span>
+            <div class="tag-list">
+              @for (k of game().keywords; track k) { <span class="chip chip-sm">{{ k }}</span> }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- AI Matched Signals -->
+      @if (game().matched_signals.length) {
+        <div class="section">
+          <div class="meta-group">
+            <span class="meta-label">AI Matched</span>
             <div class="tag-list">
               @for (sig of game().matched_signals; track sig) {
                 <span class="chip signal-chip">
@@ -95,9 +245,67 @@
               }
             </div>
           </div>
+        </div>
+      }
+
+      <!-- Release Info row -->
+      <div class="section release-row">
+        @if (game().release_date) {
+          <span class="release-item">
+            <lucide-icon [img]="Calendar" [size]="12" [strokeWidth]="2"></lucide-icon>
+            {{ game().release_date }}
+          </span>
+        }
+        @for (ar of game().age_ratings; track ar.category) {
+          <span class="age-badge">{{ formatAgeRating(ar) }}</span>
+        }
+        @if (game().updated_date) {
+          <span class="release-item dim">Updated: {{ game().updated_date }}</span>
         }
       </div>
 
+      <!-- Languages -->
+      @if (game().supported_languages.length) {
+        <div class="section">
+          <div class="meta-group">
+            <span class="meta-label">Languages</span>
+            <div class="tag-list">
+              @for (l of game().supported_languages; track l) { <span class="chip chip-sm">{{ l }}</span> }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Links -->
+      @if (game().websites.length) {
+        <div class="section">
+          <div class="website-links">
+            @for (site of game().websites; track site.url) {
+              <a [href]="site.url" target="_blank" rel="noopener noreferrer" class="site-link">
+                <lucide-icon [img]="ExternalLink" [size]="11" [strokeWidth]="2"></lucide-icon>
+                {{ websiteLabel(site.category) }}
+              </a>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Trailer -->
+      @if (game().trailer_id) {
+        <div class="section">
+          <a [href]="'https://www.youtube.com/watch?v=' + game().trailer_id"
+             target="_blank" rel="noopener noreferrer" class="trailer-link">
+            <img [src]="'https://img.youtube.com/vi/' + game().trailer_id + '/hqdefault.jpg'"
+                 alt="Watch trailer" class="trailer-thumb" />
+            <div class="trailer-overlay">
+              <lucide-icon [img]="Play" [size]="28" [strokeWidth]="2"></lucide-icon>
+              <span>Watch Trailer</span>
+            </div>
+          </a>
+        </div>
+      }
+
+      <!-- Vault -->
       <div class="card-actions">
         @if (vault.isSaved(game().igdb_id)) {
           <button class="btn-saved" (click)="removeFromVault($event)">
