@@ -43,6 +43,13 @@
         }
       </div>
 
+      @if (game().match_reason && !expanded()) {
+        <p class="why-matched">
+          <lucide-icon [img]="Sparkles" [size]="12" [strokeWidth]="2"></lucide-icon>
+          <span>{{ game().match_reason }}</span>
+        </p>
+      }
+
       @if (game().summary && !expanded()) {
         <p class="summary">{{ game().summary }}</p>
       }
@@ -63,9 +70,27 @@
   @if (expanded()) {
     <div class="card-expanded" (click)="$event.stopPropagation()">
 
+      <!-- Trailer (shown first) -->
+      @if (game().trailer_id) {
+        <a [href]="'https://www.youtube.com/watch?v=' + game().trailer_id"
+           target="_blank" rel="noopener noreferrer" class="trailer-link">
+          <img [src]="'https://img.youtube.com/vi/' + game().trailer_id + '/hqdefault.jpg'"
+               alt="Watch trailer" class="trailer-thumb" />
+          <div class="trailer-overlay">
+            <lucide-icon [img]="Play" [size]="28" [strokeWidth]="2"></lucide-icon>
+            <span>Watch Trailer</span>
+          </div>
+        </a>
+      }
+
       <!-- Story -->
       @if (game().summary) {
-        <p class="summary-full">{{ game().summary }}</p>
+        <p class="summary-full" [class.clamped]="!summaryExpanded()">{{ game().summary }}</p>
+        @if (isSummaryLong()) {
+          <button class="more-toggle summary-toggle" (click)="toggleSummary($event)" type="button">
+            {{ summaryExpanded() ? 'Show less' : 'Show more' }}
+          </button>
+        }
       }
       @if (game().storyline && game().storyline !== game().summary) {
         <p class="storyline">{{ game().storyline }}</p>
@@ -97,6 +122,7 @@
         </div>
       }
 
+      <div class="meta-grid">
       <!-- Team -->
       @if (game().developers.length || game().publishers.length || game().supporting_developers.length) {
         <div class="section">
@@ -179,41 +205,57 @@
         </div>
       }
 
-      <!-- Classification -->
-      <div class="section">
-        @if (game().genres.length) {
-          <div class="meta-group">
-            <span class="meta-label">Genres</span>
-            <div class="tag-list">
-              @for (g of game().genres; track g) { <span class="chip">{{ g }}</span> }
+      <!-- Genres & Themes -->
+      @if (game().genres.length || game().themes.length) {
+        <div class="section">
+          @if (game().genres.length) {
+            <div class="meta-group">
+              <span class="meta-label">Genres</span>
+              <div class="tag-list">
+                @for (g of game().genres; track g) { <span class="chip">{{ g }}</span> }
+              </div>
             </div>
-          </div>
-        }
-        @if (game().themes.length) {
-          <div class="meta-group">
-            <span class="meta-label">Themes</span>
-            <div class="tag-list">
-              @for (t of game().themes; track t) { <span class="chip">{{ t }}</span> }
+          }
+          @if (game().themes.length) {
+            <div class="meta-group">
+              <span class="meta-label">Themes</span>
+              <div class="tag-list">
+                @for (t of game().themes; track t) { <span class="chip">{{ t }}</span> }
+              </div>
             </div>
-          </div>
-        }
-        @if (game().platforms.length) {
+          }
+        </div>
+      }
+
+      <!-- Platforms -->
+      @if (game().platforms.length) {
+        <div class="section section-wide">
           <div class="meta-group">
             <span class="meta-label">Platforms</span>
             <div class="tag-list">
-              @for (p of game().platforms; track p) { <span class="chip">{{ p }}</span> }
+              @for (p of game().platforms; track p) {
+                <span class="chip chip-icon">
+                  <lucide-icon [img]="platformIcon(p)" [size]="11" [strokeWidth]="2"></lucide-icon>
+                  {{ p }}
+                </span>
+              }
             </div>
           </div>
-        }
-      </div>
+        </div>
+      }
 
       <!-- Alternative Titles -->
       @if (game().alternative_titles.length) {
-        <div class="section">
+        <div class="section section-wide">
           <div class="meta-group">
             <span class="meta-label">Also known as</span>
             <div class="tag-list">
-              @for (a of game().alternative_titles; track a) { <span class="chip">{{ a }}</span> }
+              @for (a of visibleAltTitles(); track a) { <span class="chip">{{ a }}</span> }
+              @if (game().alternative_titles.length > 3) {
+                <button class="more-toggle" (click)="toggleAltTitles($event)" type="button">
+                  {{ showAllAltTitles() ? 'Show less' : '+' + hiddenCount(game().alternative_titles.length) + ' more' }}
+                </button>
+              }
             </div>
           </div>
         </div>
@@ -232,8 +274,15 @@
       }
 
       <!-- AI Matched Signals -->
-      @if (game().matched_signals.length) {
+      @if (game().match_reason || game().matched_signals.length) {
         <div class="section">
+          @if (game().match_reason) {
+            <p class="why-matched why-matched-full">
+              <lucide-icon [img]="Sparkles" [size]="13" [strokeWidth]="2"></lucide-icon>
+              <span>{{ game().match_reason }}</span>
+            </p>
+          }
+          @if (game().matched_signals.length) {
           <div class="meta-group">
             <span class="meta-label">AI Matched</span>
             <div class="tag-list">
@@ -245,32 +294,22 @@
               }
             </div>
           </div>
+          }
         </div>
       }
 
-      <!-- Release Info row -->
-      <div class="section release-row">
-        @if (game().release_date) {
-          <span class="release-item">
-            <lucide-icon [img]="Calendar" [size]="12" [strokeWidth]="2"></lucide-icon>
-            {{ game().release_date }}
-          </span>
-        }
-        @for (ar of game().age_ratings; track ar.category) {
-          <span class="age-badge">{{ formatAgeRating(ar) }}</span>
-        }
-        @if (game().updated_date) {
-          <span class="release-item dim">Updated: {{ game().updated_date }}</span>
-        }
-      </div>
-
       <!-- Languages -->
       @if (game().supported_languages.length) {
-        <div class="section">
+        <div class="section section-wide">
           <div class="meta-group">
             <span class="meta-label">Languages</span>
             <div class="tag-list">
-              @for (l of game().supported_languages; track l) { <span class="chip chip-sm">{{ l }}</span> }
+              @for (l of visibleLanguages(); track l) { <span class="chip chip-sm">{{ l }}</span> }
+              @if (game().supported_languages.length > 3) {
+                <button class="more-toggle" (click)="toggleLanguages($event)" type="button">
+                  {{ showAllLanguages() ? 'Show less' : '+' + hiddenCount(game().supported_languages.length) + ' more' }}
+                </button>
+              }
             </div>
           </div>
         </div>
@@ -289,33 +328,50 @@
           </div>
         </div>
       }
-
-      <!-- Trailer -->
-      @if (game().trailer_id) {
-        <div class="section">
-          <a [href]="'https://www.youtube.com/watch?v=' + game().trailer_id"
-             target="_blank" rel="noopener noreferrer" class="trailer-link">
-            <img [src]="'https://img.youtube.com/vi/' + game().trailer_id + '/hqdefault.jpg'"
-                 alt="Watch trailer" class="trailer-thumb" />
-            <div class="trailer-overlay">
-              <lucide-icon [img]="Play" [size]="28" [strokeWidth]="2"></lucide-icon>
-              <span>Watch Trailer</span>
-            </div>
-          </a>
-        </div>
-      }
+      <!-- Release Info row (last) -->
+      <div class="section release-row">
+        @if (game().release_date) {
+          <span class="release-item">
+            <lucide-icon [img]="Calendar" [size]="12" [strokeWidth]="2"></lucide-icon>
+            {{ game().release_date }}
+          </span>
+        }
+        @for (ar of game().age_ratings; track ar.category) {
+          <span class="age-badge">{{ formatAgeRating(ar) }}</span>
+        }
+        @if (game().updated_date) {
+          <span class="release-item dim">Updated: {{ game().updated_date }}</span>
+        }
+      </div>
+      </div>
+      <!-- /meta-grid -->
 
       <!-- Vault -->
       <div class="card-actions">
+        @if (aiEnabled()) {
+          <button class="btn-more" (click)="onMoreLikeThis($event)" type="button">
+            <lucide-icon [img]="Sparkles" [size]="15" [strokeWidth]="2"></lucide-icon>
+            More like this
+          </button>
+        }
+        <button
+          class="btn-compare"
+          [class.active]="compare.isInCompare(game().igdb_id)"
+          (click)="toggleCompare($event)"
+          type="button"
+        >
+          <lucide-icon [img]="Layers" [size]="15" [strokeWidth]="2"></lucide-icon>
+          {{ compare.isInCompare(game().igdb_id) ? 'In compare' : 'Compare' }}
+        </button>
         @if (vault.isSaved(game().igdb_id)) {
           <button class="btn-saved" (click)="removeFromVault($event)">
-            <lucide-icon [img]="Vault" [size]="15" [strokeWidth]="2"></lucide-icon>
+            <lucide-icon [img]="Library" [size]="15" [strokeWidth]="2"></lucide-icon>
             Saved to Vault
             <lucide-icon [img]="X" [size]="13" [strokeWidth]="2" class="remove-icon"></lucide-icon>
           </button>
         } @else {
           <button class="btn-save" (click)="saveToVault($event)">
-            <lucide-icon [img]="Vault" [size]="15" [strokeWidth]="2"></lucide-icon>
+            <lucide-icon [img]="Library" [size]="15" [strokeWidth]="2"></lucide-icon>
             Yes, this is the game!
           </button>
         }

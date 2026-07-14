@@ -1,12 +1,14 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   LucideAngularModule,
-  Calendar, Tag, Monitor, Star, Check, ChevronDown, Vault, X,
-  ExternalLink, Play, Trophy, Users, Cpu, Globe, Shield,
+  Calendar, Tag, Monitor, Star, Check, ChevronDown, Library, X,
+  ExternalLink, Play, Trophy, Users, Cpu, Globe, Shield, Sparkles, Layers,
+  Gamepad2, Smartphone,
 } from 'lucide-angular';
 import { GameResult, GameAgeRating } from '../../models/search.model';
 import { VaultService } from '../../services/vault.service';
+import { CompareService } from '../../services/compare.service';
 
 @Component({
   selector: 'app-result-card',
@@ -17,7 +19,15 @@ import { VaultService } from '../../services/vault.service';
 })
 export class ResultCardComponent {
   game = input.required<GameResult>();
+  aiEnabled = input<boolean>(false);
+  moreLikeThis = output<GameResult>();
   expanded = signal(false);
+
+  // "Show first few, expand for the rest" state for long lists / text.
+  showAllLanguages = signal(false);
+  showAllAltTitles = signal(false);
+  summaryExpanded = signal(false);
+  private readonly PREVIEW_COUNT = 3;
 
   readonly Calendar = Calendar;
   readonly Tag = Tag;
@@ -25,7 +35,7 @@ export class ResultCardComponent {
   readonly Star = Star;
   readonly Check = Check;
   readonly ChevronDown = ChevronDown;
-  readonly Vault = Vault;
+  readonly Library = Library;
   readonly X = X;
   readonly ExternalLink = ExternalLink;
   readonly Play = Play;
@@ -34,6 +44,10 @@ export class ResultCardComponent {
   readonly Cpu = Cpu;
   readonly Globe = Globe;
   readonly Shield = Shield;
+  readonly Sparkles = Sparkles;
+  readonly Layers = Layers;
+  readonly Gamepad2 = Gamepad2;
+  readonly Smartphone = Smartphone;
 
   private readonly WEBSITE_LABELS: Record<number, string> = {
     1: 'Official', 2: 'Wikia', 3: 'Wikipedia', 4: 'Facebook', 5: 'Twitter',
@@ -54,7 +68,12 @@ export class ResultCardComponent {
     1: 'ESRB', 2: 'PEGI', 3: 'CERO', 4: 'USK', 5: 'GRAC', 6: 'CLASS IND', 7: 'ACB',
   };
 
-  constructor(readonly vault: VaultService) {}
+  constructor(readonly vault: VaultService, readonly compare: CompareService) {}
+
+  toggleCompare(e: Event) {
+    e.stopPropagation();
+    this.compare.toggle(this.game());
+  }
 
   toggle(e: Event) {
     e.stopPropagation();
@@ -64,6 +83,11 @@ export class ResultCardComponent {
   saveToVault(e: Event) {
     e.stopPropagation();
     this.vault.save(this.game());
+  }
+
+  onMoreLikeThis(e: Event) {
+    e.stopPropagation();
+    this.moreLikeThis.emit(this.game());
   }
 
   removeFromVault(e: Event) {
@@ -83,5 +107,34 @@ export class ResultCardComponent {
 
   formatCount(n: number): string {
     return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : `${n}`;
+  }
+
+  visibleLanguages(): string[] {
+    const l = this.game().supported_languages;
+    return this.showAllLanguages() ? l : l.slice(0, this.PREVIEW_COUNT);
+  }
+
+  visibleAltTitles(): string[] {
+    const a = this.game().alternative_titles;
+    return this.showAllAltTitles() ? a : a.slice(0, this.PREVIEW_COUNT);
+  }
+
+  hiddenCount(total: number): number {
+    return Math.max(0, total - this.PREVIEW_COUNT);
+  }
+
+  isSummaryLong(): boolean {
+    return (this.game().summary?.length ?? 0) > 220;
+  }
+
+  toggleLanguages(e: Event) { e.stopPropagation(); this.showAllLanguages.update(v => !v); }
+  toggleAltTitles(e: Event) { e.stopPropagation(); this.showAllAltTitles.update(v => !v); }
+  toggleSummary(e: Event) { e.stopPropagation(); this.summaryExpanded.update(v => !v); }
+
+  platformIcon(name: string) {
+    const n = name.toLowerCase();
+    if (/(pc|windows|mac|linux|dos|browser|web)/.test(n)) return this.Monitor;
+    if (/(ios|android|iphone|ipad|mobile|phone)/.test(n)) return this.Smartphone;
+    return this.Gamepad2;
   }
 }

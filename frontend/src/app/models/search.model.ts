@@ -51,6 +51,7 @@ export interface GameResult {
   storyline?: string;
   score?: number;
   matched_signals: string[];
+  match_reason?: string;
   developers: string[];
   publishers: string[];
   supporting_developers: string[];

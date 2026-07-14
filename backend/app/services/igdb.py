@@ -43,6 +43,7 @@ class IGDBClient:
                 "client_secret": self._client_secret,
                 "grant_type": "client_credentials",
             },
+            timeout=15.0,
         )
         resp.raise_for_status()
         token = resp.json()["access_token"]
@@ -60,6 +61,7 @@ class IGDBClient:
             f"{IGDB_API_URL}/{endpoint}",
             headers=self._headers(),
             content=body,
+            timeout=15.0,
         )
         resp.raise_for_status()
         return resp.json()

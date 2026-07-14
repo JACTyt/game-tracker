@@ -1,0 +1,113 @@
+/* B2 — Compare tray */
+.tray {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 40;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-accent);
+  box-shadow: 0 -8px 24px rgba(0,0,0,0.4);
+}
+.tray-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+}
+.tray-label {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  color: var(--violet-light); font-size: 0.8rem; font-weight: 600;
+  white-space: nowrap;
+}
+.tray-items { display: flex; gap: 0.5rem; flex: 1; overflow-x: auto; }
+.tray-chip {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 100px; padding: 3px 8px 3px 3px; white-space: nowrap;
+}
+.tray-chip img { width: 22px; height: 30px; object-fit: cover; border-radius: 4px; }
+.tray-chip-title { font-size: 0.75rem; color: var(--text); max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+.chip-remove {
+  display: inline-flex; background: transparent; border: none; cursor: pointer;
+  color: var(--text-muted); padding: 2px; border-radius: 50%;
+}
+.chip-remove:hover { color: #f87171; }
+
+.tray-actions { display: flex; align-items: center; gap: 0.5rem; }
+.btn-clear {
+  display: inline-flex; background: transparent; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text-muted); padding: 6px; cursor: pointer;
+}
+.btn-clear:hover { border-color: rgba(239,68,68,0.4); color: #f87171; }
+.btn-compare-open {
+  background: var(--violet); border: none; border-radius: var(--radius-sm);
+  color: #fff; font-size: 0.82rem; font-weight: 600; padding: 0.5rem 1rem; cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-compare-open:hover:not(:disabled) { background: var(--violet-light); }
+.btn-compare-open:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Overlay */
+.overlay {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(0,0,0,0.6);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+}
+.overlay-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius);
+  width: 100%; max-width: 900px; max-height: 88vh;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.overlay-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
+}
+.overlay-head h2 { font-size: 1.05rem; font-weight: 600; color: var(--text); }
+.overlay-close {
+  display: inline-flex; background: transparent; border: none; cursor: pointer;
+  color: var(--text-muted); padding: 4px; border-radius: var(--radius-sm);
+}
+.overlay-close:hover { color: var(--text); background: var(--bg-card-hover); }
+
+.compare-grid {
+  display: flex;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.compare-col {
+  flex: 0 0 240px;
+  width: 240px;
+  background: var(--bg-surface);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+}
+.compare-col:last-child { border-right: none; }
+/* Fixed-ratio portrait box so covers show in full instead of being cropped. */
+.cc-cover {
+  width: 132px;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-card);
+  margin: 0 auto 0.7rem;
+}
+.cc-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cc-cover-empty { width: 100%; height: 100%; }
+.cc-title { font-size: 0.9rem; font-weight: 600; color: var(--text); margin: 0.6rem 0; }
+.cc-field { display: flex; flex-direction: column; gap: 2px; padding: 0.4rem 0; border-top: 1px solid var(--border); }
+.cc-key { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); }
+.cc-val { font-size: 0.8rem; color: var(--text); line-height: 1.35; }
+.cc-field-summary .cc-val {
+  display: -webkit-box; -webkit-line-clamp: 6; line-clamp: 6;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .tray-label span, .tray-label { font-size: 0.72rem; }
+}

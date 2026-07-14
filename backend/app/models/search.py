@@ -56,6 +56,7 @@ class GameResult(BaseModel):
     storyline: str | None = None
     score: int | None = None
     matched_signals: list[str] = []
+    match_reason: str | None = None
     developers: list[str] = []
     publishers: list[str] = []
     supporting_developers: list[str] = []

@@ -39,9 +39,9 @@
 
 .vault-grid {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 0.5rem;
-  padding: 0.75rem;
+  padding: 0.6rem;
   border-top: 1px solid rgba(124,58,237,0.15);
 }
 
@@ -49,31 +49,29 @@
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  width: calc(50% - 0.25rem);
+  width: 100%;
   cursor: pointer;
-  transition: border-color 0.12s;
+  transition: border-color 0.12s, box-shadow 0.12s;
   overflow: hidden;
 }
 
 .vault-card:hover { border-color: rgba(124,58,237,0.3); }
-.vault-card.expanded { border-color: rgba(124,58,237,0.5); }
-
-@media (min-width: 520px) {
-  .vault-card { width: calc(33.33% - 0.34rem); }
+.vault-card.expanded {
+  border-color: rgba(124,58,237,0.5);
+  box-shadow: 0 0 14px var(--violet-glow);
 }
 
 .vault-card-main {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.5rem;
-  position: relative;
+  gap: 0.6rem;
+  padding: 0.55rem;
 }
 
 .vault-cover {
-  width: 36px;
-  min-width: 36px;
-  height: 48px;
+  width: 42px;
+  min-width: 42px;
+  height: 56px;
   border-radius: 4px;
   overflow: hidden;
   background: var(--bg-base);
@@ -165,3 +163,58 @@
   line-height: 1.55;
   margin: 0;
 }
+
+/* B3 — Collections filter bar + tag editor */
+.collection-bar {
+  display: flex; flex-wrap: wrap; gap: 0.4rem;
+  padding: 0.6rem 0.6rem 0.2rem;
+}
+.col-chip {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 100px; padding: 3px 11px; cursor: pointer;
+  color: var(--text-muted); font-size: 0.75rem; font-weight: 500;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.col-chip:hover { border-color: var(--border-accent); color: var(--text); }
+.col-chip.active {
+  background: var(--violet-glow); border-color: var(--border-accent); color: var(--violet-light);
+}
+
+.vault-card-tags { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 3px; }
+.mini-tag {
+  background: var(--violet-glow); color: var(--violet-light);
+  border-radius: 100px; padding: 1px 7px; font-size: 0.65rem;
+}
+
+.tag-editor { margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid var(--border); }
+.tag-editor-label {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.03em;
+  color: var(--text-muted); margin-bottom: 0.4rem;
+}
+.tag-editor-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; }
+.edit-tag {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 100px; padding: 2px 4px 2px 9px;
+  font-size: 0.72rem; color: var(--text);
+}
+.edit-tag button {
+  display: inline-flex; background: transparent; border: none; cursor: pointer;
+  color: var(--text-muted); padding: 1px; border-radius: 50%;
+}
+.edit-tag button:hover { color: #f87171; }
+.tag-input {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 3px 8px;
+  color: var(--text); font-size: 0.72rem; width: 90px;
+}
+.tag-input:focus { outline: none; border-color: var(--border-accent); }
+.tag-add-btn {
+  display: inline-flex; background: transparent; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--violet-light); padding: 3px; cursor: pointer;
+}
+.tag-add-btn:hover { border-color: var(--border-accent); background: var(--violet-glow); }
+
+.chip-icon { display: inline-flex; align-items: center; gap: 3px; }
+.chip-icon lucide-icon { opacity: 0.8; }

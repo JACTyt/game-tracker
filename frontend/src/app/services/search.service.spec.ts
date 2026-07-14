@@ -20,7 +20,14 @@ describe('SearchService', () => {
 
   it('should call POST /search and return results', () => {
     const mockResponse: SearchResponse = {
-      results: [{ igdb_id: 1, title: 'Silent Hill 2', genres: [], platforms: [], matched_signals: [] }],
+      results: [{
+        igdb_id: 1, title: 'Silent Hill 2',
+        genres: [], themes: [], platforms: [], matched_signals: [],
+        developers: [], publishers: [], supporting_developers: [],
+        game_modes: [], player_perspectives: [], series: [], franchises: [],
+        game_engines: [], alternative_titles: [], keywords: [],
+        websites: [], supported_languages: [], age_ratings: [],
+      }],
       mode: 'filter',
     };
 

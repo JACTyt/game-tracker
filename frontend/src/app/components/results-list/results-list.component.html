@@ -1,7 +1,16 @@
 @if (loading()) {
-  <div class="loading">
-    <span class="pulse"></span>
-    Searching...
+  <div class="skeletons">
+    @for (i of [1,2,3,4]; track i) {
+      <div class="skeleton-card">
+        <div class="sk-cover"></div>
+        <div class="sk-details">
+          <div class="sk-line sk-title"></div>
+          <div class="sk-line sk-meta"></div>
+          <div class="sk-line sk-text"></div>
+          <div class="sk-line sk-text short"></div>
+        </div>
+      </div>
+    }
   </div>
 }
 
@@ -18,8 +27,28 @@
   <div class="empty">No results found. Try different filters or a different description.</div>
 }
 
+@if (!loading() && results().length) {
+  <div class="results-controls">
+    <span class="result-count">
+      {{ results().length }} {{ results().length === 1 ? 'result' : 'results' }}
+    </span>
+    <label class="sort-control">
+      <span>Sort</span>
+      <select [value]="sortBy()" (change)="onSortChange($any($event.target).value)">
+        @for (opt of sortOptions; track opt.key) {
+          <option [value]="opt.key">{{ opt.label }}</option>
+        }
+      </select>
+    </label>
+  </div>
+}
+
 <div class="results-list">
-  @for (game of results(); track game.igdb_id) {
-    <app-result-card [game]="game" />
+  @for (game of displayResults(); track game.igdb_id) {
+    <app-result-card
+      [game]="game"
+      [aiEnabled]="aiEnabled()"
+      (moreLikeThis)="moreLikeThis.emit($event)"
+    />
   }
 </div>
