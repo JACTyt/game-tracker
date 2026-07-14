@@ -1,15 +1,34 @@
 @if (vault.games().length) {
   <div class="vault-shelf">
     <button class="vault-header" (click)="toggle()" type="button">
-      <lucide-icon [img]="Vault" [size]="15" [strokeWidth]="2"></lucide-icon>
+      <lucide-icon [img]="Library" [size]="15" [strokeWidth]="2"></lucide-icon>
       <span>My Vault</span>
       <span class="count">{{ vault.games().length }}</span>
       <lucide-icon [img]="ChevronDown" [size]="15" [strokeWidth]="2" class="chevron" [class.open]="open()"></lucide-icon>
     </button>
 
     @if (open()) {
+      @if (vault.allCollections().length) {
+        <div class="collection-bar">
+          <button
+            class="col-chip"
+            [class.active]="activeCollection() === null"
+            (click)="selectCollection(null)"
+            type="button"
+          >All</button>
+          @for (col of vault.allCollections(); track col) {
+            <button
+              class="col-chip"
+              [class.active]="activeCollection() === col"
+              (click)="selectCollection(col)"
+              type="button"
+            >{{ col }}</button>
+          }
+        </div>
+      }
+
       <div class="vault-grid">
-        @for (game of vault.games(); track game.igdb_id) {
+        @for (game of filteredGames(); track game.igdb_id) {
           <div class="vault-card" [class.expanded]="expandedId() === game.igdb_id" (click)="toggleExpand(game.igdb_id)">
             <div class="vault-card-main">
               <div class="vault-cover">
@@ -24,6 +43,13 @@
               <div class="vault-info">
                 <span class="vault-title" [title]="game.title">{{ game.title }}</span>
                 @if (game.year) { <span class="vault-year">{{ game.year }}</span> }
+                @if (game.collections.length) {
+                  <div class="vault-card-tags">
+                    @for (c of game.collections; track c) {
+                      <span class="mini-tag">{{ c }}</span>
+                    }
+                  </div>
+                }
               </div>
               <button class="remove-btn" (click)="$event.stopPropagation(); vault.remove(game.igdb_id)" type="button" title="Remove from vault">
                 <lucide-icon [img]="X" [size]="13" [strokeWidth]="2"></lucide-icon>
@@ -32,23 +58,52 @@
 
             @if (expandedId() === game.igdb_id) {
               <div class="vault-detail" (click)="$event.stopPropagation()">
-                @if (game.genres?.length) {
+                @if (game.genres.length) {
                   <div class="vault-chips">
                     @for (g of game.genres; track g) {
                       <span class="chip">{{ g }}</span>
                     }
                   </div>
                 }
-                @if (game.platforms?.length) {
+                @if (game.platforms.length) {
                   <div class="vault-chips">
                     @for (p of game.platforms; track p) {
-                      <span class="chip chip-dim">{{ p }}</span>
+                      <span class="chip chip-dim chip-icon">
+                        <lucide-icon [img]="platformIcon(p)" [size]="10" [strokeWidth]="2"></lucide-icon>
+                        {{ p }}
+                      </span>
                     }
                   </div>
                 }
                 @if (game.summary) {
                   <p class="vault-summary">{{ game.summary }}</p>
                 }
+
+                <div class="tag-editor">
+                  <span class="tag-editor-label">
+                    <lucide-icon [img]="Tag" [size]="12" [strokeWidth]="2"></lucide-icon>
+                    Collections
+                  </span>
+                  <div class="tag-editor-row">
+                    @for (c of game.collections; track c) {
+                      <span class="edit-tag">
+                        {{ c }}
+                        <button (click)="vault.removeTag(game.igdb_id, c)" type="button" title="Remove tag">
+                          <lucide-icon [img]="X" [size]="11" [strokeWidth]="2.5"></lucide-icon>
+                        </button>
+                      </span>
+                    }
+                    <input
+                      #tagInput
+                      class="tag-input"
+                      placeholder="Add tag…"
+                      (keydown.enter)="addTag(game.igdb_id, tagInput); $event.preventDefault()"
+                    />
+                    <button class="tag-add-btn" (click)="addTag(game.igdb_id, tagInput)" type="button" title="Add tag">
+                      <lucide-icon [img]="Plus" [size]="13" [strokeWidth]="2.5"></lucide-icon>
+                    </button>
+                  </div>
+                </div>
               </div>
             }
           </div>

@@ -9,39 +9,70 @@
       <lucide-icon [img]="ChevronDown" [size]="14" [strokeWidth]="2" class="chevron" [class.open]="!collapsed()"></lucide-icon>
     </button>
 
-    @if (!collapsed()) {
-      <div class="filter-body">
-        <div class="filter-group">
-          <h4>Genres</h4>
-          <div class="filter-chips">
-            @for (g of options()!.genres; track g.id) {
-              <button [class.active]="isActive('genres', g.name)" (click)="toggleItem('genres', g.name)" type="button">
-                {{ g.name }}
+    <div class="panel-collapse" [class.open]="!collapsed()">
+      <div class="panel-collapse-inner">
+        <div class="filter-body">
+          @for (g of groups; track g.key) {
+            <div class="filter-group">
+              <button class="group-header" (click)="toggleGroup(g.key)" type="button">
+                <lucide-icon [img]="g.icon" [size]="13" [strokeWidth]="2"></lucide-icon>
+                <span>{{ g.label }}</span>
+                @if (selectedCount(g.key) > 0) {
+                  <span class="group-badge">{{ selectedCount(g.key) }}</span>
+                }
+                <lucide-icon [img]="ChevronDown" [size]="14" [strokeWidth]="2" class="chevron" [class.open]="groupOpen()[g.key]"></lucide-icon>
               </button>
-            }
+
+              <div class="group-collapse" [class.open]="groupOpen()[g.key]">
+                <div class="group-collapse-inner">
+                  <div class="filter-chips">
+                    @for (item of groupItems(g.key); track item.id) {
+                      <button [class.active]="isActive(g.key, item.name)" (click)="toggleItem(g.key, item.name)" type="button">
+                        {{ item.name }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Release Year -->
+          <div class="filter-group">
+            <button class="group-header" (click)="toggleYears()" type="button">
+              <lucide-icon [img]="Calendar" [size]="13" [strokeWidth]="2"></lucide-icon>
+              <span>Release Year</span>
+              @if (yearActive()) { <span class="group-badge">•</span> }
+              <lucide-icon [img]="ChevronDown" [size]="14" [strokeWidth]="2" class="chevron" [class.open]="yearsOpen()"></lucide-icon>
+            </button>
+
+            <div class="group-collapse" [class.open]="yearsOpen()">
+              <div class="group-collapse-inner">
+                <div class="year-range">
+                  <input
+                    class="year-input" type="number" inputmode="numeric" placeholder="From"
+                    [value]="filters.year_min ?? ''"
+                    (input)="setYear('min', $any($event.target).value)"
+                  />
+                  <span class="year-dash">–</span>
+                  <input
+                    class="year-input" type="number" inputmode="numeric" placeholder="To"
+                    [value]="filters.year_max ?? ''"
+                    (input)="setYear('max', $any($event.target).value)"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="filter-group">
-          <h4>Platforms</h4>
-          <div class="filter-chips">
-            @for (p of options()!.platforms; track p.id) {
-              <button [class.active]="isActive('platforms', p.name)" (click)="toggleItem('platforms', p.name)" type="button">
-                {{ p.name }}
-              </button>
-            }
-          </div>
-        </div>
-        <div class="filter-group">
-          <h4>Themes</h4>
-          <div class="filter-chips">
-            @for (t of options()!.themes; track t.id) {
-              <button [class.active]="isActive('themes', t.name)" (click)="toggleItem('themes', t.name)" type="button">
-                {{ t.name }}
-              </button>
-            }
-          </div>
+
+          @if (hasAnyFilter()) {
+            <button class="clear-all" (click)="clearAll($event)" type="button">
+              <lucide-icon [img]="RotateCcw" [size]="12" [strokeWidth]="2"></lucide-icon>
+              Clear all filters
+            </button>
+          }
         </div>
       </div>
-    }
+    </div>
   </div>
 }

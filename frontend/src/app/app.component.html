@@ -9,40 +9,64 @@
     <p>Describe the game you remember — we'll find it.</p>
   </header>
 
-  <main>
-    <app-settings-panel />
+  <app-settings-panel />
 
-    @if (credentials.igdbConfigured()) {
-      <app-vault-shelf />
-
-      <app-search-bar
-        [mode]="mode()"
-        [loading]="loading()"
-        [aiEnabled]="credentials.aiEnabled()"
-        [queryValue]="searchQuery()"
-        (searched)="onSearch($event)"
-        (modeChanged)="onModeChanged($event)"
-      />
-
-      <app-recent-searches (selected)="onRecentSelected($event)" />
-
-      @if (mode() === 'filter') {
-        <app-filter-panel
-          [options]="filterOptions()"
-          (filtersChanged)="onFiltersChanged($event)"
-        />
+  @if (credentials.igdbConfigured()) {
+    <div
+      class="workspace"
+      [class.no-left]="!showLeftPane()"
+      [style.--left-w]="leftWidth() + 'px'"
+      [style.--right-w]="rightWidth() + 'px'"
+    >
+      @if (showLeftPane()) {
+        <aside class="pane pane-left">
+          <app-filter-panel
+            [options]="filterOptions()"
+            (filtersChanged)="onFiltersChanged($event)"
+          />
+        </aside>
+        <div class="resizer" (mousedown)="startResize('left', $event)" title="Drag to resize"></div>
       }
 
-      <app-results-list
-        [results]="results()"
-        [extractedFilters]="extractedFilters()"
-        [loading]="loading()"
-        [hasSearched]="hasSearched()"
-      />
-    } @else {
-      <div class="no-credentials">
-        Configure your API credentials above to start searching.
-      </div>
-    }
-  </main>
+      <section class="pane pane-center">
+        <app-search-bar
+          [mode]="mode()"
+          [loading]="loading()"
+          [aiEnabled]="credentials.aiEnabled()"
+          [queryValue]="searchQuery()"
+          (searched)="onSearch($event)"
+          (modeChanged)="onModeChanged($event)"
+        />
+
+        <app-recent-searches (selected)="onRecentSelected($event)" />
+
+        @if (errorMsg()) {
+          <div class="error-banner" role="alert">
+            <lucide-icon [img]="TriangleAlert" [size]="16" [strokeWidth]="2"></lucide-icon>
+            <span>{{ errorMsg() }}</span>
+          </div>
+        }
+
+        <app-results-list
+          [results]="results()"
+          [extractedFilters]="extractedFilters()"
+          [loading]="loading()"
+          [hasSearched]="hasSearched()"
+          [aiEnabled]="credentials.aiEnabled()"
+          (moreLikeThis)="onMoreLikeThis($event)"
+        />
+      </section>
+
+      <div class="resizer" (mousedown)="startResize('right', $event)" title="Drag to resize"></div>
+      <aside class="pane pane-right">
+        <app-vault-shelf />
+      </aside>
+    </div>
+  } @else {
+    <div class="no-credentials">
+      Configure your API credentials above to start searching.
+    </div>
+  }
+
+  <app-compare-tray />
 </div>

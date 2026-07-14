@@ -17,7 +17,9 @@ Only set game_title when you are confident — leave it null if unsure."""
 SCORING_SYSTEM_PROMPT = """You are a video game expert scoring search results.
 Given a user's query and a list of games, score each game 0-100 based on how well it matches.
 Return a JSON object with a single key "results" containing an array.
-Each item: {igdb_id, score, matched_signals} where matched_signals lists specific aspects that matched."""
+Each item: {igdb_id, score, matched_signals, reason} where:
+- matched_signals lists specific aspects that matched (short phrases),
+- reason is ONE concise sentence explaining why this game matches the query."""
 
 
 class OpenAIService:

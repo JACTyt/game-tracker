@@ -1,0 +1,87 @@
+@if (compare.count()) {
+  <div class="tray">
+    <div class="tray-inner">
+      <span class="tray-label">
+        <lucide-icon [img]="Layers" [size]="15" [strokeWidth]="2"></lucide-icon>
+        Compare
+      </span>
+
+      <div class="tray-items">
+        @for (game of compare.games(); track game.igdb_id) {
+          <div class="tray-chip">
+            @if (game.cover_url) {
+              <img [src]="game.cover_url" [alt]="game.title" />
+            }
+            <span class="tray-chip-title" [title]="game.title">{{ game.title }}</span>
+            <button class="chip-remove" (click)="compare.remove(game.igdb_id)" type="button" title="Remove">
+              <lucide-icon [img]="X" [size]="12" [strokeWidth]="2.5"></lucide-icon>
+            </button>
+          </div>
+        }
+      </div>
+
+      <div class="tray-actions">
+        <button class="btn-clear" (click)="clearAll()" type="button">
+          <lucide-icon [img]="Trash2" [size]="14" [strokeWidth]="2"></lucide-icon>
+        </button>
+        <button class="btn-compare-open" (click)="openOverlay()" type="button" [disabled]="compare.count() < 2">
+          Compare ({{ compare.count() }})
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (open()) {
+  <div class="overlay" (click)="closeOverlay()">
+    <div class="overlay-panel" (click)="$event.stopPropagation()">
+      <div class="overlay-head">
+        <h2>Compare games</h2>
+        <button class="overlay-close" (click)="closeOverlay()" type="button">
+          <lucide-icon [img]="X" [size]="18" [strokeWidth]="2"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="compare-grid">
+        @for (game of compare.games(); track game.igdb_id) {
+          <div class="compare-col">
+            <div class="cc-cover">
+              @if (game.cover_url) {
+                <img [src]="game.cover_url" [alt]="game.title" />
+              } @else {
+                <div class="cc-cover-empty"></div>
+              }
+            </div>
+            <h3 class="cc-title">{{ game.title }}</h3>
+
+            <div class="cc-field"><span class="cc-key">Year</span><span class="cc-val">{{ game.year ?? '—' }}</span></div>
+            <div class="cc-field">
+              <span class="cc-key">User</span>
+              <span class="cc-val">{{ game.user_rating ? (game.user_rating.toFixed(0) + '/100') : '—' }}</span>
+            </div>
+            <div class="cc-field">
+              <span class="cc-key">Critic</span>
+              <span class="cc-val">{{ game.critic_rating ? (game.critic_rating.toFixed(0) + '/100') : '—' }}</span>
+            </div>
+            <div class="cc-field">
+              <span class="cc-key">Genres</span>
+              <span class="cc-val">{{ game.genres.length ? game.genres.join(', ') : '—' }}</span>
+            </div>
+            <div class="cc-field">
+              <span class="cc-key">Platforms</span>
+              <span class="cc-val">{{ game.platforms.length ? game.platforms.join(', ') : '—' }}</span>
+            </div>
+            <div class="cc-field">
+              <span class="cc-key">Modes</span>
+              <span class="cc-val">{{ game.game_modes.length ? game.game_modes.join(', ') : '—' }}</span>
+            </div>
+            <div class="cc-field cc-field-summary">
+              <span class="cc-key">Summary</span>
+              <span class="cc-val">{{ game.summary ?? '—' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

@@ -26,10 +26,26 @@ def _fmt_ts(timestamp: int | None, fmt: str = "%b %d, %Y") -> str | None:
     return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc).strftime(fmt)
 
 
-def _igdb_game_to_result(game: dict, score_map: dict[int, dict] | None = None) -> GameResult:
+def _igdb_game_to_result(
+    game: dict,
+    score_map: dict[int, dict] | None = None,
+    semantic: bool = False,
+) -> GameResult:
     if score_map is None:
         score_map = {}
     scored = score_map.get(game["id"], {})
+
+    # In semantic mode `score` is the AI relevance score only. Candidates the
+    # model didn't score are treated as non-matches (None) rather than borrowing
+    # their critic rating, which would let highly-rated but irrelevant games
+    # outrank real matches. In filter mode we fall back to the critic rating so
+    # the card still shows a quality signal.
+    if game["id"] in score_map:
+        score = scored.get("score")
+    elif semantic:
+        score = None
+    else:
+        score = int(game["total_rating"]) if game.get("total_rating") else None
 
     involved = game.get("involved_companies", [])
     developers = [
@@ -80,8 +96,9 @@ def _igdb_game_to_result(game: dict, score_map: dict[int, dict] | None = None) -
         platforms=[p["name"] for p in game.get("platforms", [])],
         summary=game.get("summary"),
         storyline=game.get("storyline"),
-        score=scored.get("score", int(game.get("total_rating", 0)) if game.get("total_rating") else None),
+        score=score,
         matched_signals=scored.get("matched_signals", []),
+        match_reason=scored.get("reason"),
         developers=developers,
         publishers=publishers,
         supporting_developers=supporting,
@@ -145,10 +162,6 @@ class SearchService:
             return self._text_search(request)
         extracted = self._openai.extract_filters(request.query)
 
-        title_games: list[dict] = []
-        if extracted.game_title:
-            title_games = self._igdb.search_games(query=extracted.game_title, limit=5)
-
         genres = request.filters.genres or extracted.genres
         themes = request.filters.themes or extracted.themes
         platforms = request.filters.platforms or extracted.platforms
@@ -163,21 +176,41 @@ class SearchService:
         platform_ids = self._igdb.resolve_names_to_ids(platforms, all_platforms)
         theme_ids = self._igdb.resolve_names_to_ids(themes, all_themes)
 
-        filter_games = self._igdb.search_games(
-            genre_ids=genre_ids,
-            theme_ids=theme_ids,
-            platform_ids=platform_ids,
-            year_min=year_min,
-            year_max=year_max,
-            limit=request.limit * 3,
-        )
-
+        # Build the candidate pool from most-to-least targeted sources. We only
+        # pull filter/rating-sorted candidates when there are real filters —
+        # otherwise an empty filter set returns the top critic-rated games in the
+        # whole database, which are almost never what the user described.
         seen: set[int] = set()
         games: list[dict] = []
-        for g in title_games + filter_games:
-            if g["id"] not in seen:
-                seen.add(g["id"])
-                games.append(g)
+
+        def add(candidates: list[dict]) -> None:
+            for g in candidates:
+                if g["id"] not in seen:
+                    seen.add(g["id"])
+                    games.append(g)
+
+        # 1. Exact title the AI identified (e.g. "Overwatch" from Tracer).
+        if extracted.game_title:
+            add(self._igdb.search_games(query=extracted.game_title, limit=5))
+
+        # 2. Text search on the raw query — catches names/keywords the user typed.
+        if request.query.strip():
+            add(self._igdb.text_search(request.query, limit=request.limit))
+
+        # 3. Filter-based candidates, only when we actually have filters.
+        has_filters = bool(genre_ids or theme_ids or platform_ids or year_min or year_max)
+        if has_filters:
+            add(self._igdb.search_games(
+                genre_ids=genre_ids,
+                theme_ids=theme_ids,
+                platform_ids=platform_ids,
+                year_min=year_min,
+                year_max=year_max,
+                limit=request.limit * 3,
+            ))
+
+        if not games:
+            return SearchResponse(results=[], extracted_filters=extracted, mode="semantic")
 
         scored_list = self._openai.score_results(request.query, [
             {
@@ -191,8 +224,8 @@ class SearchService:
         score_map = {s["igdb_id"]: s for s in scored_list}
 
         results = sorted(
-            [_igdb_game_to_result(g, score_map) for g in games],
-            key=lambda r: r.score or 0,
+            [_igdb_game_to_result(g, score_map, semantic=True) for g in games],
+            key=lambda r: r.score if r.score is not None else -1,
             reverse=True,
         )[: request.limit]
 
